@@ -1,0 +1,52 @@
+# ==============================================================================
+# .gitignore - Handwritten Kanji Recognition System
+# ==============================================================================
+
+# --- Datasets (Excluded: thousands of image files belong in cloud storage) ---
+data/
+100class/
+
+# --- Model Weights (Excluded: model_resnet18.h5 is 128.7 MB, exceeding GitHub's 100 MB limit) ---
+demo/model/*.h5
+demo/model/*.pth
+demo/model/*.keras
+demo/model/*.onnx
+!demo/model/.gitkeep
+
+# --- Academic reports, course templates, and temporary documentation ---
+*.docx
+*.pptx
+*.pdf
+TONG_HOP_VA_PHAN_TICH_CHI_TIET_XLA.md
+training/danh-gia.txt
+
+# --- Python virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Python cache & bytecode ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Jupyter Notebook checkpoints & autosaves ---
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# --- Editor and IDE configuration ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Operating system temporary and metadata files ---
+.DS_Store
+Thumbs.db
+[Dd]esktop.ini
+
+# --- Logging & scratch artifacts ---
+*.log
+.system_generated/
+scratch/

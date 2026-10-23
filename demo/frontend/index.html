@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ứng dụng nhận diện chữ Kanji viết tay sử dụng deep learning (CNN & ResNet18)">
+    <title>Kanji Recognition - Nhận diện chữ Kanji viết tay</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ==================== HEADER ==================== -->
+    <header class="header" id="header">
+        <div class="header-left">
+            <h1 class="logo">
+                <span class="logo-kanji">漢</span>
+                <span class="logo-text">Kanji Recognition</span>
+            </h1>
+            <span class="header-subtitle">Deep Learning Handwriting Recognition</span>
+        </div>
+        <div class="header-right">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <span class="theme-icon-sun">&#9728;</span>
+                <span class="theme-icon-moon">&#9790;</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content" id="mainContent">
+        <!-- === LEFT PANEL: Canvas === -->
+        <section class="panel panel-canvas" id="panelCanvas">
+            <div class="panel-header">
+                <h2 class="panel-title">Canvas vẽ</h2>
+                <p class="panel-desc">Vẽ một chữ Kanji bằng chuột hoặc cảm ứng</p>
+            </div>
+
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="drawCanvas" width="400" height="400"></canvas>
+                <!-- Guide grid overlay -->
+                <div class="canvas-guide" id="canvasGuide">
+                    <div class="guide-line guide-h"></div>
+                    <div class="guide-line guide-v"></div>
+                </div>
+            </div>
+
+            <div class="canvas-controls">
+                <button class="btn btn-clear" id="btnClear">
+                    <span class="btn-icon"></span>
+                    Xóa
+                </button>
+                <button class="btn btn-predict" id="btnPredict">
+                    <span class="btn-icon"></span>
+                    Nhận dạng
+                </button>
+            </div>
+
+            <!-- Brush size control -->
+            <div class="brush-control">
+                <label for="brushSize">Cỡ nét: <span id="brushSizeLabel">8</span>px</label>
+                <input type="range" id="brushSize" min="2" max="20" value="8" step="1">
+            </div>
+        </section>
+
+        <!-- === RIGHT PANEL: Results === -->
+        <section class="panel panel-results" id="panelResults">
+            <div class="panel-header">
+                <h2 class="panel-title">Kết quả nhận dạng</h2>
+                <p class="panel-desc">So sánh kết quả từ hai mô hình</p>
+            </div>
+
+            <!-- Trạng thái chờ -->
+            <div class="results-placeholder" id="resultsPlaceholder">
+                <div class="placeholder-icon"></div>
+                <p>Hãy vẽ một chữ Kanji và bấm <strong>Nhận dạng</strong></p>
+            </div>
+
+            <!-- Loading spinner -->
+            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+                <div class="spinner"></div>
+                <p class="loading-text">Đang nhận dạng...</p>
+            </div>
+
+            <!-- Kết quả -->
+            <div class="results-container" id="resultsContainer" style="display: none;">
+                <!-- CNN Card -->
+                <div class="result-card" id="cardCNN">
+                    <div class="card-header">
+                        <span class="card-badge badge-cnn">CNN</span>
+                        <span class="card-model-name">Custom CNN</span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Top 1 -->
+                        <div class="top1-result">
+                            <div class="top1-kanji" id="cnnTop1Kanji">?</div>
+                            <div class="top1-info">
+                                <div class="top1-confidence-label">Độ tin cậy</div>
+                                <div class="top1-confidence-value" id="cnnTop1Confidence">0%</div>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" id="cnnConfidenceFill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Top 3 -->
+                        <div class="top3-section">
+                            <h4 class="top3-title">Top 3 dự đoán</h4>
+                            <div class="top3-list" id="cnnTop3List">
+                                <!-- Rendered by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Error message -->
+                    <div class="card-error" id="cnnError" style="display: none;"></div>
+                </div>
+
+                <!-- ResNet Card -->
+                <div class="result-card" id="cardResNet">
+                    <div class="card-header">
+                        <span class="card-badge badge-resnet">ResNet18</span>
+                        <span class="card-model-name">ResNet18</span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Top 1 -->
+                        <div class="top1-result">
+                            <div class="top1-kanji" id="resnetTop1Kanji">?</div>
+                            <div class="top1-info">
+                                <div class="top1-confidence-label">Độ tin cậy</div>
+                                <div class="top1-confidence-value" id="resnetTop1Confidence">0%</div>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" id="resnetConfidenceFill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Top 3 -->
+                        <div class="top3-section">
+                            <h4 class="top3-title">Top 3 dự đoán</h4>
+                            <div class="top3-list" id="resnetTop3List">
+                                <!-- Rendered by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Error message -->
+                    <div class="card-error" id="resnetError" style="display: none;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer">
+        <p>Kanji Recognition &mdash; CNN & ResNet18 Deep Learning</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
